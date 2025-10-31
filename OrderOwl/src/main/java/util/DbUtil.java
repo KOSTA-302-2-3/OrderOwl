@@ -1,12 +1,9 @@
 package util;
 
-import java.io.FileInputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -19,6 +16,7 @@ import javax.sql.DataSource;
  * */
 public class DbUtil {
 	static DataSource ds;
+	
     /**
      * 로드
      * */
@@ -26,7 +24,7 @@ public class DbUtil {
 		try {
 		  Context initContext = new InitialContext();
 		  ds = (DataSource)initContext.lookup("java:/comp/env/jdbc/mySql");
-		  
+		
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -35,35 +33,33 @@ public class DbUtil {
 	/**
 	 * 연결
 	 * */
-	public static Connection getConnection() throws SQLException {
-		Connection conn = ds.getConnection();
-		return conn;
-	}
+	public static Connection getConnection() throws SQLException{
+		return  ds.getConnection();
+	} 
 	
 	/**
-	 * 닫기  - 사용된 객체 닫기- select인경우 
+	 * 닫기 (insert, update ,delete 인경우 )
 	 * */
-    public static void dbClose(Connection con , Statement st , ResultSet rs) {
-    	try {
-		  if(rs!=null)rs.close();
-	      dbClose(con, st);
-    	}catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * 닫기  - 사용된 객체 닫기- DML or DDL 인경우 
-	 * */
-	public static void dbClose(Connection con , Statement st) {
+	public static void dbClose(Statement st, Connection con){
 		try {
-			if(st != null)st.close();
-			if(con!=null)con.close();
+		  if(st!=null) st.close();
+		  if(con!=null) con.close();
 		}catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * 닫기(select 인경우)
+	 * */
+    public static void dbClose(ResultSet rs , Statement st, Connection con){
+    	try {
+		  if(rs!=null)rs.close();
+		  dbClose(st, con);
+    	}catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 
